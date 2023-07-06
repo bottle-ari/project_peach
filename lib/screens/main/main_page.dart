@@ -1,7 +1,14 @@
+import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_peach/screens/main/nav_pages/list_page.dart';
 import 'package:project_peach/screens/start/start_screen.dart';
+
+import 'nav_pages/chat_page.dart';
+import 'nav_pages/home_page.dart';
+import 'nav_pages/like_page.dart';
+import 'nav_pages/user_page.dart';
 
 class MainPage extends StatefulWidget{
   const MainPage({super.key});
@@ -13,6 +20,24 @@ class MainPage extends StatefulWidget{
 class _MainPageState extends State<MainPage>{
   final _authentication = FirebaseAuth.instance;
   User? loggedUser;
+  var _bottomNavIndex = 0; //default index of a first screen
+
+  final List<Widget> _widgetOptions = [
+    HomePage(),
+    ListPage(),
+    LikePage(),
+    ChatPage(),
+    UserPage(),
+  ];
+
+  final iconList = <IconData>[
+    Icons.brightness_5,
+    Icons.brightness_4,
+    Icons.brightness_3_sharp,
+    Icons.brightness_6,
+    Icons.brightness_7,
+  ];
+
 
   @override
   void initState(){
@@ -50,27 +75,20 @@ class _MainPageState extends State<MainPage>{
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text('chat screen'),
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.exit_to_app_sharp,
-                color: Colors.black,
-              ),
-              onPressed: () async {
-                await _authentication.signOut();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => StartPage()),
-                      (route) => false,
-                );
-              },
-            ),
-          ],
+        body: SafeArea(
+          child: _widgetOptions.elementAt(_bottomNavIndex),
         ),
-        body: Center(
-          child: Text('chat screen'),
+        // bottom navigation 선언
+        bottomNavigationBar: AnimatedBottomNavigationBar(
+          icons: iconList,
+          height: 64,
+          activeIndex: _bottomNavIndex,
+          backgroundColor: Colors.white,
+          activeColor : Color(0xFFFFA19B),
+          inactiveColor : Colors.grey,
+          gapLocation: GapLocation.none,
+          onTap: (index) => setState(() => _bottomNavIndex = index,
+          ),
         ),
       ),
     );
